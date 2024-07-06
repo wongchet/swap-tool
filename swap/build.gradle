@@ -12,13 +12,19 @@ repositories {
 
 dependencies {
     implementation project(':core')
+    implementation project(':abi')
+    implementation project(':utils')
 
     implementation 'org.springframework.boot:spring-boot-starter-web:2.3.1.RELEASE'
     implementation "org.springframework.boot:spring-boot-starter-actuator:2.3.1.RELEASE"
     implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.3.1.RELEASE'
-    testImplementation "org.springframework.boot:spring-boot-starter-test:2.3.1.RELEASE"
+    // protobuf & grpc
+    implementation 'com.google.protobuf:protobuf-java:3.25.0'
+    implementation 'com.google.guava:guava:28.0-jre'
 
     runtime group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test:2.3.1.RELEASE"
 
 }
 

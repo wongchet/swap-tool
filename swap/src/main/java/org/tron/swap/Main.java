@@ -1,6 +1,11 @@
 package org.tron.swap;
 
 import org.tron.trident.core.ApiWrapper;
+import org.tron.trident.core.contract.Contract;
+import org.tron.trident.core.contract.Trc20Contract;
+import org.tron.trident.proto.Response.*;
+
+import java.math.BigInteger;
 
 /**
  * @author: Chet Wong
@@ -9,17 +14,29 @@ import org.tron.trident.core.ApiWrapper;
  */
 public class Main {
 
-    public static void main(String[] args) {
-        //main net, using TronGrid
-        ApiWrapper wrapper = ApiWrapper.ofMainnet(
-                "073f2e7c66807b080f07a76f23370348af4a6a7335d9a13ab6d0e26e68bb1619",
-                "d3a262d6-1295-4b89-8b86-4ae0df358f23");
+    //Shasta test net, using TronGrid
+//        ApiWrapper wrapper = ApiWrapper.ofShasta("hex private key");
+    //Nile test net, using a node from Nile official website
+//        ApiWrapper wrapper = ApiWrapper.ofNile("hex private key");
+    //main net, using TronGrid
+    static ApiWrapper wrapper = ApiWrapper.ofMainnet(
+            "073f2e7c66807b080f07a76f23370348af4a6a7335d9a13ab6d0e26e68bb1619",
+            "d3a262d6-1295-4b89-8b86-4ae0df358f23"
+    );
+
+    public static void main(String[] args) throws Exception {
         long bal = wrapper.getAccountBalance("TQooBX9o8iSSprLWW96YShBogx7Uwisuim");
         System.out.println(bal);
-        //Shasta test net, using TronGrid
-//    ApiWrapper wrapper = ApiWrapper.ofShasta("hex private key");
-        //Nile test net, using a node from Nile official website
-//    ApiWrapper wrapper = ApiWrapper.ofNile("hex private key");
+
+        TransactionSignWeight transaction = wrapper.getTransactionSignWeight(
+                wrapper.getTransactionById("fd15cc89a6533faba4673f151f1f443f5939ad2e8c9800e767d44e99148f0ad3"));
+        System.out.println(transaction);
+
+        Contract contract = wrapper.getContract("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t");
+        Trc20Contract token = new Trc20Contract(contract, "TQooBX9o8iSSprLWW96YShBogx7Uwisuim", wrapper);
+        BigInteger supply = token.totalSupply();
+        System.out.println(supply);
     }
+
 
 }
