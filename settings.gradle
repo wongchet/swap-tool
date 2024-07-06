@@ -1,0 +1,11 @@
+pluginManagement {
+
+}
+
+rootProject.name = 'swap-tool'
+
+include 'utils'
+include 'abi'
+include 'core'
+include 'swap'
+

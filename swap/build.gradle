@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.3.1.RELEASE'
+}
+
+group 'org.tron.trident'
+version '0.9.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':core')
+
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.3.1.RELEASE'
+    implementation "org.springframework.boot:spring-boot-starter-actuator:2.3.1.RELEASE"
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.3.1.RELEASE'
+    testImplementation "org.springframework.boot:spring-boot-starter-test:2.3.1.RELEASE"
+
+    runtime group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
+
+}
+
+test {
+    useJUnitPlatform()
+}
