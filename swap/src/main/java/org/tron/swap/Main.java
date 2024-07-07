@@ -2,14 +2,19 @@ package org.tron.swap;
 
 import org.tron.trident.abi.FunctionReturnDecoder;
 import org.tron.trident.abi.TypeReference;
+import org.tron.trident.abi.datatypes.Address;
+import org.tron.trident.abi.datatypes.Bool;
 import org.tron.trident.abi.datatypes.Function;
 import org.tron.trident.abi.datatypes.Utf8String;
+import org.tron.trident.abi.datatypes.generated.Uint256;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.contract.Contract;
 import org.tron.trident.core.contract.Trc20Contract;
 import org.tron.trident.core.key.KeyPair;
+import org.tron.trident.core.transaction.TransactionBuilder;
 import org.tron.trident.proto.Chain;
 import org.tron.trident.proto.Response.*;
+import org.tron.trident.utils.Base58Check;
 import org.tron.trident.utils.Numeric;
 
 import java.math.BigInteger;
@@ -23,15 +28,13 @@ import java.util.Collections;
  */
 public class Main {
 
-    //Shasta test net, using TronGrid
-//        ApiWrapper wrapper = ApiWrapper.ofShasta("hex private key");
+    static String walletAddr = "TA8dfp8Dxo4cxhExUye57a9oPgv3Va9SmE";
+    static String priKey = "073f2e7c66807b080f07a76f23370348af4a6a7335d9a13ab6d0e26e68bb1619";
+    static String apiKey = "d3a262d6-1295-4b89-8b86-4ae0df358f23";
     //Nile test net, using a node from Nile official website
-//        ApiWrapper wrapper = ApiWrapper.ofNile("hex private key");
+    static ApiWrapper wrapper = ApiWrapper.ofNile(priKey);
     //main net, using TronGrid
-    static ApiWrapper wrapper = ApiWrapper.ofMainnet(
-            "073f2e7c66807b080f07a76f23370348af4a6a7335d9a13ab6d0e26e68bb1619",
-            "d3a262d6-1295-4b89-8b86-4ae0df358f23"
-    );
+//    static ApiWrapper wrapper = ApiWrapper.ofMainnet(priKey, apiKey);
 
     public static void main(String[] args) throws Exception {
 //        // gen address
@@ -42,7 +45,7 @@ public class Main {
 //        System.out.println(address);
 //
 //        // acct
-//        long bal = wrapper.getAccountBalance("TQooBX9o8iSSprLWW96YShBogx7Uwisuim");
+//        long bal = wrapper.getAccountBalance("TA8dfp8Dxo4cxhExUye57a9oPgv3Va9SmE");
 //        System.out.println(bal);
 //
 //        // transaction
@@ -80,6 +83,48 @@ public class Main {
 //        Chain.Transaction signedTransaction = wrapper.signTransaction(transfer);
 //        String txid = wrapper.broadcastTransaction(signedTransaction);
 //        System.out.println(txid);
+
+
+        String txid = swapV1BuyTrx(
+                "TVaSW5NvtJ8TFAfiEUPEWJbN5pRjp4Kbwi",
+                "1000000",
+                "10000000000000000000",
+                "1722331372");
+        System.out.println(txid);
+    }
+
+    public static String swapV1BuyTrx(String poolAddress, String trxBought, String maxTokens, String deadline) {
+        // tokenToTrxSwapOutput(trx_bought_uint256,max_tokens_uint256,deadline_uint256) returns uint256
+        Function swapFunc = new Function("tokenToTrxSwapOutput",
+                Arrays.asList(
+                        new Uint256(new BigInteger(trxBought)),
+                        new Uint256(new BigInteger(maxTokens)),
+                        new Uint256(new BigInteger(deadline))
+                ),
+                Arrays.asList(new TypeReference<Uint256>() {})
+        );
+        TransactionBuilder builder = wrapper.triggerCall(walletAddr, poolAddress, swapFunc);
+        builder.setFeeLimit(100000000L);
+        Chain.Transaction signedTxn = wrapper.signTransaction(builder.build());
+        String txid = wrapper.broadcastTransaction(signedTxn);
+        return txid;
+    }
+
+    public static String swapV1SoldTrx(String poolAddress, String tokensSold, String minTrx, String deadline) {
+        // tokenToTrxSwapInput(tokens_sold_uint256,min_trx_uint256,deadline_uint256) returns uint256
+        Function swapFunc = new Function("tokenToTrxSwapInput",
+                Arrays.asList(
+                        new Uint256(new BigInteger(tokensSold)),
+                        new Uint256(new BigInteger(minTrx)),
+                        new Uint256(new BigInteger(deadline))
+                ),
+                Arrays.asList(new TypeReference<Uint256>() {})
+        );
+        TransactionBuilder builder = wrapper.triggerCall(walletAddr, poolAddress, swapFunc);
+        builder.setFeeLimit(100000000L);
+        Chain.Transaction signedTxn = wrapper.signTransaction(builder.build());
+        String txid = wrapper.broadcastTransaction(signedTxn);
+        return txid;
     }
 
 }
