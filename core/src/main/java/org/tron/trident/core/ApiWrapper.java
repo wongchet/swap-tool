@@ -1767,16 +1767,18 @@ public class ApiWrapper {
      * @param function the function called
      * @return TransactionExtention
      */
-    private TransactionExtention callWithoutBroadcast(String ownerAddr, Contract cntr, Function function) {
+    private TransactionExtention callWithoutBroadcast(String ownerAddr, Contract cntr, Function function, long callValue) {
         cntr.setOwnerAddr(parseAddress(ownerAddr));
         String encodedHex = FunctionEncoder.encode(function);
         // Make a TriggerSmartContract contract
-        TriggerSmartContract trigger =
-                TriggerSmartContract.newBuilder()
-                        .setOwnerAddress(cntr.getOwnerAddr())
-                        .setContractAddress(cntr.getCntrAddr())
-                        .setData(parseHex(encodedHex))
-                        .build();
+        TriggerSmartContract.Builder builder = TriggerSmartContract.newBuilder()
+                .setOwnerAddress(cntr.getOwnerAddr())
+                .setContractAddress(cntr.getCntrAddr())
+                .setData(parseHex(encodedHex));
+        if (callValue > 0) {
+            builder.setCallValue(callValue);
+        }
+        TriggerSmartContract trigger = builder.build();
 
         // System.out.println("trigger:\n" + trigger);
 
@@ -1796,8 +1798,8 @@ public class ApiWrapper {
     public TransactionExtention constantCall(String ownerAddr, String contractAddr, Function function) {
         Contract cntr = getContract(contractAddr);
 
-        TransactionExtention txnExt =  callWithoutBroadcast(ownerAddr, cntr, function);
-        
+        TransactionExtention txnExt =  callWithoutBroadcast(ownerAddr, cntr, function, 0);
+
         return txnExt;
     }
 
@@ -1811,7 +1813,15 @@ public class ApiWrapper {
     public TransactionBuilder triggerCall(String ownerAddr, String contractAddr, Function function) {
         Contract cntr = getContract(contractAddr);
 
-        TransactionExtention txnExt = callWithoutBroadcast(ownerAddr, cntr, function);
+        TransactionExtention txnExt = callWithoutBroadcast(ownerAddr, cntr, function, 0);
+
+        return new TransactionBuilder(txnExt.getTransaction());
+    }
+
+    public TransactionBuilder triggerCallWithValue(String ownerAddr, String contractAddr, Function function, long callValue) {
+        Contract cntr = getContract(contractAddr);
+
+        TransactionExtention txnExt = callWithoutBroadcast(ownerAddr, cntr, function, callValue);
 
         return new TransactionBuilder(txnExt.getTransaction());
     }

@@ -8,12 +8,24 @@ version '0.9.0'
 
 repositories {
     mavenCentral()
+//    flatDir {
+//        dirs('../libs')
+//    }
+}
+
+ext {
+    grpcVersion = '1.58.1'
 }
 
 dependencies {
-    implementation project(':core')
+    implementation (project(':core')) {
+//        exclude group: 'io.grpc'
+    }
     implementation project(':abi')
     implementation project(':utils')
+//    implementation fileTree(dir:'../libs', include: 'sun-sdk.jar')
+//    implementation fileTree(dir:'../libs', include: 'sun-sdk-1.0-SNAPSHOT.jar')
+//    implementation (name: 'sun-sdk', ext: 'jar')
 
     implementation 'org.springframework.boot:spring-boot-starter-web:2.3.1.RELEASE'
     implementation "org.springframework.boot:spring-boot-starter-actuator:2.3.1.RELEASE"
@@ -25,6 +37,12 @@ dependencies {
     runtime group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
 
     testImplementation "org.springframework.boot:spring-boot-starter-test:2.3.1.RELEASE"
+
+    implementation "io.grpc:grpc-netty-shaded:$grpcVersion"
+    implementation "io.grpc:grpc-netty:$grpcVersion"
+    implementation "io.grpc:grpc-okhttp:$grpcVersion"
+    implementation "io.grpc:grpc-protobuf:$grpcVersion"
+    implementation "io.grpc:grpc-stub:$grpcVersion"
 
 }
 
